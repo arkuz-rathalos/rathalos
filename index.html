@@ -9,9 +9,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
       
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -25,16 +23,24 @@
       
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
+
+        // Initialize Firestore
         const db = getFirestore(app);
 
-        // Get data from the 'dummy' collection
+        // Get a specific document (connectiontest) from the 'dummy' collection
         const getData = async () => {
-            const querySnapshot = await getDocs(collection(db, "dummy"));
-            querySnapshot.forEach((doc) => {
-                console.log(`${doc.id} =>`, doc.data());
+            const docRef = doc(db, "dummy", "connectiontest");
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                console.log("Document data:", docSnap.data());
                 // You can append this data to your HTML if needed
-            });
+            } else {
+                console.log("No such document!");
+            }
         };
+
+        getData();
     </script>
 </body>
 </html>
