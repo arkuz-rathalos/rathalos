@@ -29,7 +29,7 @@
 
         // Get a specific document (connectiontest) from the 'dummy' collection
         const getData = async () => {
-            const docRef = doc(db, "dummy", "connectiontest");
+            const docRef = doc(db, "primary", "AR-23 Liberator");
             const docSnap = await getDoc(docRef);
 
             if (docSnap.exists()) {
