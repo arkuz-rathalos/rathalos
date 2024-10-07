@@ -6,10 +6,28 @@
     <title>Document</title>
 </head>
 <body>
+    <h1>Firestore Document Data</h1>
+    <!-- Dropdown for names -->
+    <label for="name-dropdown">Select Name:</label>
+    <select id="name-dropdown">
+        <option value="" disabled selected>Select a name</option>
+        <!-- Options will be dynamically generated here -->
+    </select>
+    <table id="data-table" border="1">
+        <thead>
+            <tr id="table-header">
+                <!-- Headers will be dynamically generated here -->
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <!-- Data will be inserted here -->
+        </tbody>
+    </table>
+
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
       
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -27,20 +45,90 @@
         // Initialize Firestore
         const db = getFirestore(app);
 
-        // Get a specific document (connectiontest) from the 'dummy' collection
-        const getData = async () => {
-            const docRef = doc(db, "primary", "AR-23 Liberator");
-            const docSnap = await getDoc(docRef);
+        // Function to get and display all documents from the 'primary' collection
+        const getAllDocuments = async () => {
+            const querySnapshot = await getDocs(collection(db, "primary"));
 
-            if (docSnap.exists()) {
-                console.log("Document data:", docSnap.data());
-                // You can append this data to your HTML if needed
-            } else {
-                console.log("No such document!");
-            }
+            // Reference to table header and body
+            const tableHeader = document.getElementById('table-header');
+            const tableBody = document.getElementById('table-body');
+
+            // Clear the table header and body before adding new data
+            tableHeader.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            // Store all fields from all documents to ensure all columns are captured
+            let allFields = new Set();
+
+            // First pass to collect all fields (headers)
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                Object.keys(data).forEach((field) => {
+                    allFields.add(field);
+                });
+            });
+
+            // Convert Set to Array
+            allFields = Array.from(allFields);
+
+            // Create a header row dynamically
+            const docIdHeader = document.createElement('th');
+            docIdHeader.textContent = 'Document ID';
+            tableHeader.appendChild(docIdHeader);
+
+            allFields.forEach((field) => {
+                const headerCell = document.createElement('th');
+                headerCell.textContent = field;
+                tableHeader.appendChild(headerCell);
+            });
+
+            // Second pass to populate rows with document data
+            querySnapshot.forEach((doc) => {
+                const row = document.createElement('tr');
+
+                // Cell for Document ID
+                const docIdCell = document.createElement('td');
+                docIdCell.textContent = doc.id;
+                row.appendChild(docIdCell);
+
+                // Cells for Document Data (per field)
+                allFields.forEach((field) => {
+                    const cell = document.createElement('td');
+                    const value = doc.data()[field] || '';  // Display empty string if field is missing
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+
+                // Append the row to the table body
+                tableBody.appendChild(row);
+            });
         };
 
-        getData();
+        getAllDocuments();  // Call the function to retrieve and display data
+
+        // Reference to the dropdown-------------
+        const nameDropdown = document.getElementById("name-dropdown");
+
+        // Function to fetch Firestore data and populate dropdown
+        async function fetchFirestoreData() {
+            const querySnapshot = await getDocs(collection(db, "primary"));
+            
+            querySnapshot.forEach((doc) => {
+                const docData = doc.data();
+                const name = docData.name; // Assuming there's a 'name' field in the document
+                
+                // Create an option element for the dropdown
+                const option = document.createElement("option");
+                option.value = name;
+                option.textContent = name;
+                
+                // Append the option to the dropdown
+                nameDropdown.appendChild(option);
+            });
+        }
+
+        // Fetch data when the page loads
+        window.onload = fetchFirestoreData;
     </script>
 </body>
 </html>
