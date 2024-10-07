@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+</head>
+<body>
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
@@ -25,13 +27,11 @@
         const db = firebase.firestore();
 
         db.collection("dummy").get().then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-        console.log(`${doc.id} => ${doc.data()}`);
-        // You can append this data to your HTML
+            querySnapshot.forEach((doc) => {
+            console.log(`${doc.id} => ${doc.data()}`);
+            // You can append this data to your HTML
             });
         });
     </script>
-</head>
-<body>
 </body>
 </html>
